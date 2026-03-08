@@ -18,7 +18,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y chromium-browser
 
-      - name: Verify Installation
+      - name: Verify Installation and Rendering
         run: |
-          # 这是检测安装是否成功的命令
+          # 检查版本
           chromium-browser --version
+          # 尝试抓取网页内容（验证渲染引擎）
+          chromium-browser --headless --no-sandbox --disable-gpu --dump-dom https://www.google.com | head -n 10
