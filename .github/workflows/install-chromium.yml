@@ -1,26 +1,32 @@
-name: Install Chromium Test
+name: Run Check Script
 
-on: 
+on:
   push:
-    branches: [ "main" ]
-  workflow_dispatch: # 允许手动触发
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch: # 允许你手动触发
 
 jobs:
-  check-chromium:
+  check:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. 拉取代码
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Update apt and install Chromium
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y chromium-browser
+      # 2. 安装 Bun 环境
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest # 或者指定版本，例如 1.0.0
 
-      - name: Verify Installation and Rendering
-        run: |
-          # 检查版本
-          chromium-browser --version
-          # 尝试抓取网页内容（验证渲染引擎）
-          chromium-browser --headless --no-sandbox --disable-gpu --dump-dom https://www.google.com | head -n 10
+      # 3. 安装依赖 (如果你的 check.cjs 依赖了 node_modules)
+      # 如果脚本是纯原生的，可以跳过这一步
+      - name: Install dependencies
+        run: bun install
+
+      # 4. 执行脚本
+      - name: Execute check.cjs
+        run: bun check.cjs
